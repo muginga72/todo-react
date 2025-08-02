@@ -1,27 +1,36 @@
-import React, {useState} from "react";
+import React from 'react';
 
-function TodoForm() {
-  const [newTodo, setNewTodo] = useState("");
+function TodoForm({ onAddTodo }) {
+  // Handler for form submission
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Prevent page refresh
 
-  const handleAddTodo = (e) => {
-    console.log(e);
-    e.preventDefault();
-    onAddTodo();
-    setNewTodo('');
-  }
+    const title = e.target.title.value; // Get input value
 
-  return(
-    <form onSubmit={handleAddTodo}>
-      <div>
-        <label htmlFor="todoTitle">Title </label>
-        <input type="text" name="title" id="todoTitle" required
-          value={newTodo}
-          placeholder="Add new todo"
-        />
-        <button style={{color: "blue"}}>Add</button>
-      </div>
+    if (!title.trim()) return; // prevent empty todos
+
+    const newTodo = {
+      title,
+      id: Date.now(), // Unique ID based on timestamp
+
+    };
+
+    onAddTodo(newTodo); // Call the parent handler with new todo
+    e.target.title.value = ''; // Clear input
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label htmlFor="todoTitle" style={{ marginRight: '10px' }}>Todo</label>
+      <input
+        type="text"
+        name="title"
+        placeholder="Enter a todo"
+        required
+      />
+      <button type="submit" style={{color: "blue", marginLeft: "10px", borderBottom: "2px solid blue" }}>Add</button>
     </form>
-  )
+  );
 }
 
 export default TodoForm;
