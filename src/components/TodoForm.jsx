@@ -1,19 +1,24 @@
-import React from "react";
+import React, {useState} from "react";
 
 function TodoForm() {
+  const [newTodo, setNewTodo] = useState("");
+
+  const handleAddTodo = (e) => {
+    console.log(e);
+    e.preventDefault();
+    onAddTodo();
+    setNewTodo('');
+  }
+
   return(
-    <form>
+    <form onSubmit={handleAddTodo}>
       <div>
-        {/* <label>
-          <html></html>
-        </label> */}
-        <input
-          type="text"
-          name="title"
-          id="todoTitle"
+        <label htmlFor="todoTitle">Title </label>
+        <input type="text" name="title" id="todoTitle" required
+          value={newTodo}
           placeholder="Add new todo"
         />
-        <button>Add</button>
+        <button style={{color: "blue"}}>Add</button>
       </div>
     </form>
   )
