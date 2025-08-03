@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import TodoList from './assets/feature/TodoList';
-import TodoForm from './assets/feature/TodoForm';
+import TodoList from './feature/TodoList';
+import TodoForm from './feature/TodoForm';
 
 function App() {
   const [todoList, setTodoList] = useState([]);
@@ -12,6 +12,13 @@ function App() {
       isCompleted: false,
     };
     setTodoList([...todoList, newTodo]);
+  };
+
+  const updateTodo = (editedTodo) => {
+    const updatedTodos = todoList.map((todo) =>
+      todo.id === editedTodo.id ? { ...editedTodo } : todo
+    );
+    setTodoList(updatedTodos);
   };
 
   const completeTodo = (id) => {
@@ -27,7 +34,11 @@ function App() {
     <div>
       <h1>Todo List</h1>
       <TodoForm onAddTodo={handleAddTodo} />
-      <TodoList todoList={todoList} onCompleteTodo={completeTodo} />
+      <TodoList
+        todoList={todoList}
+        onCompleteTodo={completeTodo}
+        onUpdateTodo={updateTodo}
+      />
     </div>
   );
 }
