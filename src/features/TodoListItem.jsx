@@ -1,22 +1,5 @@
-// import React from 'react';
-
-// function TodoListItem({ todo, onCompleteTodo }) {
-//   return (
-//     <form>
-//       <input
-//         type="checkbox"
-//         checked={todo.isCompleted}
-//         onChange={() => onCompleteTodo(todo.id)} // triggers favorite-style logic
-//       />
-//       {todo.title}
-//     </form>
-//   );
-// }
-
-// export default TodoListItem;
-
 import React, { useState } from 'react';
-import TextInputWithLabel from '../shared/TextInputWithLabelTextInputWithLabel';
+import TextInputWithLabel from '../shared/TextInputWithLabel';
 
 function TodoListItem({ todo, onCompleteTodo, onUpdateTodo }) {
   const [isEditing, setIsEditing] = useState(false);
