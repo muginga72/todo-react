@@ -4,6 +4,21 @@ import TodoForm from './features/TodoForm';
 
 function App() {
   const [todoList, setTodoList] = useState([]);
+  const [sortDirection, setSortDirection] = useState(null); // 'asc' | 'desc' | null
+  const [filterTodos, SetFilterTodos] = useState('');
+
+  const filteredAndSortedTodos = [...todoList]
+  .filter((todo) =>
+    todo.title.toLowerCase().includes(filterTodos.toLowerCase())
+  )
+  .sort((a, b) => {
+    if (sortDirection === 'asc') {
+      return a.title.localeCompare(b.title);
+    } else if (sortDirection === 'desc') {
+      return b.title.localeCompare(a.title);
+    }
+    return 0;
+  });
 
   // Fetch todos from API on mount
   useEffect(() => {
@@ -62,15 +77,43 @@ function App() {
     setTodoList(updatedTodos); // update state with new array
   };
 
+  console.log(todoList)
+
   return (
     <div>
       <h1>Todo List</h1>
       <TodoForm onAddTodo={handleAddTodo} />
       <TodoList
-        todoList={todoList}
+        todoList={filteredAndSortedTodos}
         onCompleteTodo={completeTodo}
         onUpdateTodo={updateTodo}
       />
+
+      <div style={{ marginBottom: '20px' }}>
+        <input
+          type="text"
+          placeholder="Search todos..."
+          value={filterTodos}
+          onChange={(e) => SetFilterTodos(e.target.value)}
+          style={{ padding: '6px', marginRight: '10px' }}
+        />
+
+        <button onClick={() => SetFilterTodos('')} style={{ color: "darkgreen", borderBottom: "2px solid darkgreen"  }}>
+          Search Todo
+        </button>
+      </div>
+
+      <div style={{ marginBottom: '20px' }}>
+        <button onClick={() => setSortDirection('asc')} style={{ color: "blue", marginLeft: "10px", borderBottom: "2px solid blue" }}>
+          Ascending
+        </button>
+        <button onClick={() => setSortDirection('desc')} style={{ marginRight: '10px', color: "blue", marginLeft: "10px", borderBottom: "2px solid blue"  }}>
+          Descending
+        </button>
+        <button onClick={() => setSortDirection(null)} style={{ color: "brawn", borderBottom: "2px solid brown"  }}>
+          Reset Sort
+        </button>
+      </div>
     </div>
   );
 }
