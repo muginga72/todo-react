@@ -21,8 +21,9 @@ function TodoForm({ onAddTodo }) {
         inputRef={inputRef}
         style={{ marginRight: "20px" }}
       />
+
       <button type="submit" disabled={workingTodoTitle.trim() === ''}
-        style={{color: "blue", marginLeft: "10px", borderBottom: "2px solid blue" }}
+        style={{color: "darkgreen", marginLeft: "10px", borderBottom: "2px solid darkgreen" }}
       >
         Add
       </button>
