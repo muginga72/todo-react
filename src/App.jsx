@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import TodoList from './features/TodoList';
 import TodoForm from './features/TodoForm';
+// import Header from './features/Header';
 
 function App() {
   const [todoList, setTodoList] = useState([]);
@@ -92,6 +93,7 @@ function App() {
 
   return (
     <div>
+      {/* <Header /> */}
       <h1>Todo List</h1>
       <TodoForm onAddTodo={handleAddTodo} />
 
