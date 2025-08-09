@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import TodoList from './features/TodoList';
 import TodoForm from './features/TodoForm';
-// import Header from './features/Header';
+import Header from './features/Header';
 
 function App() {
   const [todoList, setTodoList] = useState([]);
@@ -92,16 +92,29 @@ function App() {
   }, []);
 
   return (
-    <div>
-      {/* <Header /> */}
+    <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh', // optional: centers vertically
+        textAlign: 'center' // optional: centers text inside child elements
+      }}>
+
+      <div style={{marginTop: '50px'}}>
+        <Header />
+      </div>
+
       <h1>Todo List</h1>
       <TodoForm onAddTodo={handleAddTodo} />
 
-      <TodoList
-        todoList={filteredAndSortedTodos}
-        onCompleteTodo={completeTodo}
-        onUpdateTodo={updateTodo}
-      />
+      <div style={{textAlign: 'left'}}>
+        <TodoList
+          todoList={filteredAndSortedTodos}
+          onCompleteTodo={completeTodo}
+          onUpdateTodo={updateTodo}
+        />
+      </div>
 
       <div style={{ marginBottom: '20px' }}>
         <input
