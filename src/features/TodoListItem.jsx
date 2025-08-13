@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styles from './styles/TodoListItem.module.css';
 import TextInputWithLabel from '../shared/TextInputWithLabel';
 
+// Retained local state for editing, updates todo via onUpdateTodo prop.
 function TodoListItem({ todo, onCompleteTodo, onUpdateTodo }) {
   const [isEditing, setIsEditing] = useState(false);
   const [workingTitle, setWorkingTitle] = useState(todo.title);
@@ -14,8 +15,10 @@ function TodoListItem({ todo, onCompleteTodo, onUpdateTodo }) {
   const handleUpdate = (e) => {
     if (!isEditing) return;
     e.preventDefault();
-    onUpdateTodo({ ...todo, title: workingTitle });
-    setIsEditing(false);
+    if (workingTitle.trim()) {
+      onUpdateTodo({ ...todo, title: workingTitle.trim() });
+      setIsEditing(false);
+    }
   };
 
   return (

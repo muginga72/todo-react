@@ -1,118 +1,127 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import TodoList from './features/TodoList';
-import TodoForm from './features/TodoForm';
+import React, { useReducer, useEffect, useMemo, useCallback, useRef, useState } from 'react';
+import { todoReducer, initialState } from './reducers/todoReducer';
+import TodoList from './features/TodoList'; 
+import TodoForm from './features/TodoForm'; 
 import Header from './features/Header';
 
 function App() {
-  const [todoList, setTodoList] = useState([]);
-  const [sortDirection, setSortDirection] = useState(null);
-  const [filterTodos, setFilterTodos] = useState('');
+  // useReducer replaces multiple useState calls with centralized state logic
+  const [state, dispatch] = useReducer(todoReducer, initialState);
+
+  // Destructure state values from reducer-managed state
+  const { todoList, sortDirection, filterTodos } = state;
+
+  // Ref to directly manipulate the search input field (uncontrolled component)
+  const searchInputRef = useRef(null);
+
+  // Local state to cache search inputs for performance optimization
   const [cachedResults, setCachedResults] = useState({});
+
+  // Ref to manage throttling of search input changes
   const throttleTimeout = useRef(null);
 
-  // Fetch todos from API once on component mount
+  // Fetch initial todos from external API when component mounts
   useEffect(() => {
     const fetchTodos = async () => {
       try {
-        const response = await fetch('https://jsonplaceholder.typicode.com/todos?_limit=5');
-        const data = await response.json();
+        const response = await fetch('https://jsonplaceholder.typicode.com/todos?_limit=5'); // Fetch 5 todos
+        const data = await response.json(); // Parse JSON response
         const formattedTodos = data.map(todo => ({
           id: todo.id,
           title: todo.title,
           isCompleted: todo.completed,
         }));
-        setTodoList(formattedTodos);
+        dispatch({ type: 'SET_TODOS', payload: formattedTodos }); // Store todos in reducer state
       } catch (error) {
-        console.error('Error fetching todos:', error);
-      } finally {
-        console.log('Fetch attempt completed.');
+        console.error('Error fetching todos:', error); // Log any errors
       }
     };
+    fetchTodos(); // Trigger fetch
+  }, []); // Empty dependency array ensures this runs only once
 
-    fetchTodos();
-  }, []);
-
-  // Memoized filtered and sorted todos
+  // Memoize filtered and sorted todos to avoid unnecessary recalculations
   const filteredAndSortedTodos = useMemo(() => {
     const filtered = todoList.filter(todo =>
-      todo.title.toLowerCase().includes(filterTodos.toLowerCase())
+      todo.title.toLowerCase().includes(filterTodos.toLowerCase()) // Filter by search term
     );
 
     const sorted = [...filtered].sort((a, b) => {
-      if (sortDirection === 'asc') return a.title.localeCompare(b.title);
-      if (sortDirection === 'desc') return b.title.localeCompare(a.title);
-      return 0;
+      if (sortDirection === 'asc') return a.title.localeCompare(b.title); // Ascending sort
+      if (sortDirection === 'desc') return b.title.localeCompare(a.title); // Descending sort
+      return 0; // No sort
     });
 
-    return sorted;
-  }, [todoList, filterTodos, sortDirection]);
+    return sorted; // Return final list
+  }, [todoList, filterTodos, sortDirection]); // Recompute only when dependencies change
 
-  // Throttled search input handler using useCallback
+  // Handle search input changes with throttling and caching
   const handleSearchChange = useCallback((e) => {
     const value = e.target.value;
 
-    // If result is cached, use it immediately
     if (cachedResults[value]) {
-      setFilterTodos(value);
+      dispatch({ type: 'SET_FILTER', payload: value }); // Use cached result
       return;
     }
 
-    // Clear any existing throttle timeout
-    if (throttleTimeout.current) clearTimeout(throttleTimeout.current);
+    if (throttleTimeout.current) clearTimeout(throttleTimeout.current); // Clear previous timeout
 
-    // Set a new throttle timeout to delay search processing
     throttleTimeout.current = setTimeout(() => {
-      setFilterTodos(value);
-      setCachedResults(prev => ({ ...prev, [value]: true }));
-    }, 300); // 300ms throttle
-  }, [cachedResults]);
+      dispatch({ type: 'SET_FILTER', payload: value }); // Dispatch filter update
+      setCachedResults(prev => ({ ...prev, [value]: true })); 
+    }, 300); // Delay execution by 300ms
+  }, [cachedResults]); // Recreate callback only when cache changes
 
-  // Memoized function to add a new todo
+  // Clear search input and reset filter state
+  const handleClearSearch = () => {
+    dispatch({ type: 'SET_FILTER', payload: '' }); // Reset filter
+    if (searchInputRef.current) {
+      searchInputRef.current.value = ''; // Clear input field manually
+    }
+  };
+
+  // Add a new todo item
   const handleAddTodo = useCallback((title) => {
     const newTodo = {
-      id: Date.now(),
+      id: Date.now(), // Unique ID based on timestamp
       title,
       isCompleted: false,
     };
-    setTodoList(prev => [...prev, newTodo]);
+    dispatch({ type: 'ADD_TODO', payload: newTodo }); // Dispatch add action
   }, []);
 
-  // Memoized function to update an existing todo
+  // Update an existing todo item
   const updateTodo = useCallback((editedTodo) => {
-    setTodoList(prev =>
-      prev.map(todo => (todo.id === editedTodo.id ? { ...editedTodo } : todo))
-    );
+    dispatch({ type: 'UPDATE_TODO', payload: editedTodo }); // Dispatch update action
   }, []);
 
-  // Memoized function to mark a todo as completed
+  // Mark a todo as completed
   const completeTodo = useCallback((id) => {
-    setTodoList(prev =>
-      prev.map(todo => (todo.id === id ? { ...todo, isCompleted: true } : todo))
-    );
+    dispatch({ type: 'COMPLETE_TODO', payload: id }); // Dispatch complete action
   }, []);
 
+  // Render the UI
   return (
     <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh', // optional: centers vertically
-        textAlign: 'center' // optional: centers text inside child elements
-      }}>
-
-      <div style={{marginTop: '50px'}}>
-        <Header />
+      display: 'flex', 
+      flexDirection: 'column', // Stack children vertically
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      minHeight: '100vh', // Full viewport height
+      textAlign: 'center' 
+    }}>
+      <div style={{ marginTop: '50px' }}>
+        <Header /> {/* Optional header */}
       </div>
 
       <h1>Todo List</h1>
-      <TodoForm onAddTodo={handleAddTodo} />
 
-      <div style={{textAlign: 'left'}}>
+      <TodoForm onAddTodo={handleAddTodo} /> {/* Form to add new todos */}
+
+      <div style={{ textAlign: 'left' }}>
         <TodoList
-          todoList={filteredAndSortedTodos}
-          onCompleteTodo={completeTodo}
-          onUpdateTodo={updateTodo}
+          todoList={filteredAndSortedTodos} // Pass filtered/sorted todos
+          onCompleteTodo={completeTodo} // Handler to complete todos
+          onUpdateTodo={updateTodo} // Handler to update todos
         />
       </div>
 
@@ -120,22 +129,35 @@ function App() {
         <input
           type="text"
           placeholder="Search todos..."
-          onChange={handleSearchChange}
+          onChange={handleSearchChange} // Throttled search handler
+          ref={searchInputRef} // Ref for manual clearing
           style={{ padding: '6px', marginRight: '10px' }}
         />
-        <button onClick={() => setFilterTodos('')} style={{ color: "darkgreen", borderBottom: "2px solid darkgreen" }}>
+        <button
+          onClick={handleClearSearch} // Clear search input
+          style={{ color: "darkgreen", borderBottom: "2px solid darkgreen" }}
+        >
           Clear Search
         </button>
       </div>
 
       <div style={{ marginBottom: '20px' }}>
-        <button onClick={() => setSortDirection('asc')} style={{ color: "blue", marginLeft: "10px", borderBottom: "2px solid blue" }}>
+        <button
+          onClick={() => dispatch({ type: 'SET_SORT', payload: 'asc' })} // Sort ascending
+          style={{ color: "blue", marginLeft: "10px", borderBottom: "2px solid blue" }}
+        >
           Ascending
         </button>
-        <button onClick={() => setSortDirection('desc')} style={{ marginRight: '10px', color: "blue", marginLeft: "10px", borderBottom: "2px solid blue" }}>
+        <button
+          onClick={() => dispatch({ type: 'SET_SORT', payload: 'desc' })} // Sort descending
+          style={{ color: "blue", marginLeft: "10px", borderBottom: "2px solid blue" }}
+        >
           Descending
         </button>
-        <button onClick={() => setSortDirection(null)} style={{ color: "brown", borderBottom: "2px solid brown" }}>
+        <button
+          onClick={() => dispatch({ type: 'SET_SORT', payload: null })} // Reset sort
+          style={{ color: "brown", borderBottom: "2px solid brown" }}
+        >
           Reset Sort
         </button>
       </div>

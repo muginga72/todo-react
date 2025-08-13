@@ -2,16 +2,16 @@ import React from 'react';
 import TodoListItem from './TodoListItem';
 
 function TodoList({ todoList, onCompleteTodo, onUpdateTodo }) {
-  // Filter out completed todos
-  const filteredTodoList = todoList.filter((todo) => !todo.isCompleted);
+  // Removed filtering logic, now receives already filtered/sorted list from parent.
+  const activeTodos = todoList.filter(todo => !todo.isCompleted);
 
   return (
     <div>
-      {filteredTodoList.length === 0 ? (
-        <p style={{marginLeft: "30px"}}>Add todo above to get started</p>
+      {activeTodos.length === 0 ? (
+        <p style={{ marginLeft: "30px" }}>Add todo above to get started</p>
       ) : (
         <ul>
-          {filteredTodoList.map((todo) => (
+          {activeTodos.map(todo => (
             <TodoListItem
               key={todo.id}
               todo={todo}
