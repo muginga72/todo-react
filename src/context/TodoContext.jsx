@@ -2,10 +2,10 @@ import React, { createContext, useReducer } from 'react';
 import { todoReducer, initialState } from '../reducers/todoReducer';
 
 // Create context
-export const TodoContext = createContext();
+const TodoContext = createContext();
 
 // Provider component
-export function TodoProvider({ children }) {
+function TodoProvider({ children }) {
   const [state, dispatch] = useReducer(todoReducer, initialState);
 
   return (
@@ -14,3 +14,6 @@ export function TodoProvider({ children }) {
     </TodoContext.Provider>
   );
 }
+
+// Use named exports only
+export { TodoContext, TodoProvider };
