@@ -1,8 +1,8 @@
 import React from 'react';
 import TodoListItem from './TodoListItem';
 
-function TodoList({ todoList, onCompleteTodo, onUpdateTodo }) {
-  // Removed filtering logic, now receives already filtered/sorted list from parent.
+function TodoList({ todoList, onCompleteTodo, onUpdateTodo, onToggleTodo }) {
+  // Filter out completed todos
   const activeTodos = todoList.filter(todo => !todo.isCompleted);
 
   return (
@@ -17,6 +17,7 @@ function TodoList({ todoList, onCompleteTodo, onUpdateTodo }) {
               todo={todo}
               onCompleteTodo={onCompleteTodo}
               onUpdateTodo={onUpdateTodo}
+              onToggleTodo={onToggleTodo}
             />
           ))}
         </ul>
